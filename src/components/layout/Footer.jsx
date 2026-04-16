@@ -1,6 +1,7 @@
 import { GitBranch, Link2, AtSign, Mail, Heart, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSettings } from '../../hooks/useSettings';
+import CustomLogo from '../ui/CustomLogo';
 
 const Footer = () => {
   const { data: settings } = useSettings('social');
@@ -34,7 +35,8 @@ const Footer = () => {
                 <span className="font-display font-black text-[#050E0A] text-sm">DT</span>
               </div> */}
               <span className="font-display font-semibold text-lg text-[#EEF5F1]">
-                <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" width={100}/>
+                <CustomLogo />
+                {/* <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" width={100}/> */}
                 {/* Velt<span className="text-gradient">.</span>re */}
               </span>
             </div>
