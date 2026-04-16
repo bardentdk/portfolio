@@ -1,0 +1,12 @@
+{
+  "name": "Djebarlen Tambon — Portfolio",
+  "short_name": "Velt.re",
+  "description": "Développeur Web & Mobile — La Réunion",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050E0A",
+  "theme_color": "#00E5A0",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
