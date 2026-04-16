@@ -89,7 +89,7 @@ const Skills = () => {
         style={{ background: 'radial-gradient(circle,rgba(0,229,160,0.08) 0%,transparent 70%)' }} />
 
       <div className="container-custom">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="section-header-row">
           <motion.div {...fadeIn(0)}>
             <div className="section-label">Compétences</div>
             <h2 className="font-display font-black text-[clamp(2rem,4vw,3.5rem)] text-[#EEF5F1] leading-tight tracking-tight">
@@ -98,7 +98,7 @@ const Skills = () => {
           </motion.div>
 
           {/* Tabs catégorie */}
-          <motion.div {...fadeIn(0.1)} className="flex flex-wrap gap-2">
+          <motion.div {...fadeIn(0.1)} className="filter-row">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -117,7 +117,7 @@ const Skills = () => {
 
         {/* Grid skills */}
         {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="skills-grid">
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="shimmer h-20 rounded-xl" />
             ))}

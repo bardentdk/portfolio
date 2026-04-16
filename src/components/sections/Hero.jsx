@@ -1,11 +1,10 @@
-import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDown, Code2, Sparkles } from 'lucide-react';
 import { useSettings } from '../../hooks/useSettings';
+import Djeb from "../../assets/dt.png"
 
-/* Particules flottantes en arrière-plan */
 const Particles = () => {
-  const dots = Array.from({ length: 32 }, (_, i) => ({
+  const dots = Array.from({ length: 24 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -14,13 +13,18 @@ const Particles = () => {
     dur: Math.random() * 8 + 6,
   }));
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       {dots.map(d => (
         <motion.div
           key={d.id}
-          className="absolute rounded-full bg-[#00E5A0]"
-          style={{ left: `${d.x}%`, top: `${d.y}%`, width: d.size, height: d.size, opacity: 0.15 }}
-          animate={{ y: [0, -20, 0], opacity: [0.1, 0.3, 0.1] }}
+          style={{
+            position: 'absolute',
+            left: `${d.x}%`, top: `${d.y}%`,
+            width: d.size, height: d.size,
+            borderRadius: '50%',
+            background: '#00E5A0',
+          }}
+          animate={{ y: [0, -18, 0], opacity: [0.08, 0.25, 0.08] }}
           transition={{ duration: d.dur, delay: d.delay, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
@@ -28,20 +32,8 @@ const Particles = () => {
   );
 };
 
-/* Grille décorative */
-const GridLines = () => (
-  <div
-    className="absolute inset-0 pointer-events-none"
-    style={{
-      backgroundImage:
-        'linear-gradient(rgba(0,229,160,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.04) 1px,transparent 1px)',
-      backgroundSize: '80px 80px',
-    }}
-  />
-);
-
 const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 30 },
+  initial: { opacity: 0, y: 32 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.9, delay, ease: [0.19, 1, 0.22, 1] },
 });
@@ -53,67 +45,78 @@ const Hero = () => {
   const headline    = hero.headline    || 'Développeur Web\n& Mobile';
   const subheadline = hero.subheadline || 'Je conçois des expériences numériques qui marient performance et esthétique.';
 
-  const scrollDown = () => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-
   const stats = [
-    { value: '7+',  label: 'Ans d\'expérience' },
-    { value: '30+', label: 'Projets livrés' },
-    { value: '100%', label: 'Qualiopi certifié' },
+    { value: '7+',   label: "Ans d'expérience" },
+    { value: '30+',  label: 'Projets livrés' },
+    { value: '100%', label: 'Satisfaction client' },
   ];
 
-  const stack = ['Laravel', 'Vue 3', 'React', 'InertiaJS', 'Supabase', 'WordPress', 'NativePHP'];
+  const stack = ['Laravel', 'Vue 3', 'React', 'InertiaJS', 'Supabase', 'WordPress'];
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden"
-    >
-      <GridLines />
+    <section id="hero" style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+      {/* Grid décoratif */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'linear-gradient(rgba(0,229,160,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.035) 1px,transparent 1px)',
+        backgroundSize: '80px 80px',
+      }} />
+
       <Particles />
 
-      {/* Orb gauche */}
-      <div className="absolute -left-64 top-1/3 w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(0,229,160,0.1) 0%,transparent 70%)' }} />
-      {/* Orb droite */}
-      <div className="absolute -right-32 bottom-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(0,194,128,0.07) 0%,transparent 70%)' }} />
+      {/* Orbs */}
+      <div style={{ position: 'absolute', left: '-20rem', top: '33%', width: '700px', height: '700px', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle,rgba(0,229,160,0.09) 0%,transparent 65%)' }} />
+      <div style={{ position: 'absolute', right: '-10rem', bottom: '-5rem', width: '500px', height: '500px', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle,rgba(0,194,128,0.06) 0%,transparent 65%)' }} />
 
-      <div className="container-custom relative z-10 pt-32 pb-24">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="container-custom" style={{ position: 'relative', zIndex: 10, paddingTop: '9rem', paddingBottom: '7rem' }}>
+        <div className="hero-grid">
 
-          {/* ─ LEFT ─ */}
+          {/* ─ Colonne gauche ─ */}
           <div>
-            {/* Badge disponibilité */}
-            <motion.div {...fadeUp(0.1)} className="inline-flex items-center gap-2 mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E5A0] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E5A0]" />
+            {/* Badge dispo */}
+            <motion.div {...fadeUp(0.1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.625rem', marginBottom: '2rem' }}>
+              <span style={{ position: 'relative', display: 'flex', width: '0.5rem', height: '0.5rem' }}>
+                <span style={{
+                  position: 'absolute', inset: 0, borderRadius: '50%',
+                  background: '#00E5A0', opacity: 0.7,
+                  animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite',
+                }} />
+                <span style={{ position: 'relative', display: 'flex', width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: '#00E5A0' }} />
               </span>
-              <span className="text-xs font-semibold text-[#00E5A0] tracking-widest uppercase">Disponible — Open to work</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#00E5A0', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                Disponible — Open to work
+              </span>
             </motion.div>
 
-            {/* Headline */}
+            {/* Titre */}
             <motion.h1
               {...fadeUp(0.2)}
-              className="font-display font-black text-[clamp(2.6rem,6vw,5.5rem)] leading-[1.0] tracking-tight text-[#EEF5F1] mb-6"
+              style={{
+                fontFamily: 'Poppins, sans-serif', fontWeight: 900,
+                lineHeight: 1.0, letterSpacing: '-0.02em',
+                color: '#EEF5F1', marginBottom: '1.5rem',
+                fontSize: 'clamp(2.8rem, 6vw, 5.5rem)',
+              }}
             >
               {headline.split('\n').map((line, i) => (
-                <span key={i} className={i === 1 ? 'text-gradient block' : 'block'}>{line}</span>
+                <span key={i} className={i % 2 !== 0 ? 'text-gradient' : ''} style={{ display: 'block' }}>
+                  {line}
+                </span>
               ))}
             </motion.h1>
 
-            {/* Sub */}
-            <motion.p {...fadeUp(0.32)} className="text-base text-[#6B9980] leading-relaxed max-w-md mb-10 font-light">
+            {/* Description */}
+            <motion.p {...fadeUp(0.32)} style={{ fontSize: '1rem', color: '#6B9980', lineHeight: 1.85, maxWidth: '420px', marginBottom: '2.5rem', fontWeight: 300 }}>
               {subheadline}
             </motion.p>
 
-            {/* CTAs */}
-            <motion.div {...fadeUp(0.42)} className="flex flex-wrap gap-3 mb-14">
+            {/* Boutons */}
+            <motion.div {...fadeUp(0.42)} className="buttons-row">
               <button
                 onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
                 className="btn-primary"
               >
-                <Sparkles size={16} /> Voir mes projets
+                <Sparkles size={15} /> Voir mes projets
               </button>
               <button
                 onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
@@ -124,91 +127,102 @@ const Hero = () => {
             </motion.div>
 
             {/* Stats */}
-            <motion.div {...fadeUp(0.52)} className="flex gap-8">
+            <motion.div {...fadeUp(0.52)} className="stats-row">
               {stats.map(({ value, label }) => (
                 <div key={label}>
-                  <div className="font-display font-black text-2xl text-gradient leading-none mb-1">{value}</div>
-                  <div className="text-xs text-[#6B9980] font-medium">{label}</div>
+                  <div className="text-gradient" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1, marginBottom: '0.25rem' }}>{value}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#6B9980', fontWeight: 500 }}>{label}</div>
                 </div>
               ))}
             </motion.div>
           </div>
 
-          {/* ─ RIGHT — carte flottante ─ */}
-          <motion.div
-            {...fadeUp(0.3)}
-            className="relative hidden lg:flex justify-center"
-          >
-            {/* Carte principale */}
+          {/* ─ Colonne droite — carte flottante (desktop only) ─ */}
+          <motion.div {...fadeUp(0.3)} className="hero-card-col">
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative w-80"
+              style={{ position: 'relative', width: '20rem' }}
             >
-              {/* Photo placeholder ou initiales */}
-              <div className="glass rounded-3xl p-1 shadow-[0_0_60px_rgba(0,229,160,0.12)]">
-                <div className="rounded-[1.375rem] overflow-hidden aspect-[3/4] bg-gradient-to-br from-[#0C1A13] to-[#1A2E23] flex items-center justify-center relative">
-                  {/* Pattern décoratif */}
-                  <div className="absolute inset-0" style={{
-                    backgroundImage: 'radial-gradient(circle at 30% 70%,rgba(0,229,160,0.15) 0%,transparent 50%)',
-                  }} />
-                  <span className="relative font-display font-black text-8xl text-gradient opacity-40 select-none">DT</span>
+              {/* Carte avatar */}
+              <div className="glass" style={{ borderRadius: '1.5rem', padding: '0.25rem', boxShadow: '0 0 80px rgba(0,229,160,0.12)' }}>
+                <div style={{
+                  borderRadius: '1.375rem', overflow: 'hidden',
+                  aspectRatio: '3/4',
+                  background: 'linear-gradient(135deg, #0C1A13, #1A2E23)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  position: 'relative',
+                }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 70%,rgba(0,229,160,0.15) 0%,transparent 50%)' }} />
+                  <span className="text-gradient" style={{ position: 'relative', fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '7rem', opacity: 0.3, userSelect: 'none', lineHeight: 1, backgroundImage: '../assets/dt.png',  }}>DT</span>
                 </div>
               </div>
 
-              {/* Badge Code */}
+              {/* Badge gauche */}
               <motion.div
-                className="absolute -left-10 top-10 glass rounded-2xl px-4 py-3 flex items-center gap-2.5"
-                animate={{ x: [0, -5, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                className="glass"
+                style={{ position: 'absolute', left: '-3rem', top: '3rem', borderRadius: '1rem', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+                animate={{ x: [0, -6, 0] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
               >
-                <div className="w-8 h-8 rounded-lg bg-[rgba(0,229,160,0.15)] flex items-center justify-center">
-                  <Code2 size={16} className="text-[#00E5A0]" />
+                <div style={{ width: '2rem', height: '2rem', borderRadius: '0.625rem', background: 'rgba(0,229,160,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Code2 size={14} color="#00E5A0" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#EEF5F1]">Full-Stack</div>
-                  <div className="text-[10px] text-[#6B9980]">Web & Mobile</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#EEF5F1', lineHeight: 1.2 }}>Full-Stack</div>
+                  <div style={{ fontSize: '0.625rem', color: '#6B9980' }}>Web & Mobile</div>
                 </div>
               </motion.div>
 
-              {/* Badge location */}
+              {/* Badge droite */}
               <motion.div
-                className="absolute -right-8 bottom-20 glass rounded-2xl px-4 py-3"
-                animate={{ x: [0, 5, 0] }}
+                className="glass"
+                style={{ position: 'absolute', right: '-2.5rem', bottom: '6rem', borderRadius: '1rem', padding: '0.75rem 1rem' }}
+                animate={{ x: [0, 6, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
               >
-                <div className="text-[10px] text-[#6B9980] mb-0.5">Basé à</div>
-                <div className="text-xs font-bold text-[#EEF5F1]">🌴 La Réunion</div>
+                <div style={{ fontSize: '0.625rem', color: '#6B9980', marginBottom: '0.25rem' }}>Basé à</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#EEF5F1' }}>🌴 La Réunion</div>
               </motion.div>
-            </motion.div>
 
-            {/* Stack ring décoratif */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-72">
-              <div className="glass rounded-2xl px-5 py-3">
-                <div className="text-[10px] text-[#6B9980] mb-2 uppercase tracking-widest font-semibold">Stack principale</div>
-                <div className="flex flex-wrap gap-1.5">
+              {/* Stack pills */}
+              <div className="glass" style={{ position: 'absolute', bottom: '-2rem', left: '50%', transform: 'translateX(-50%)', width: '18rem', borderRadius: '1rem', padding: '0.875rem 1.25rem' }}>
+                <div style={{ fontSize: '0.625rem', color: '#6B9980', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700 }}>Stack</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                   {stack.map(t => (
-                    <span key={t} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[rgba(0,229,160,0.1)] text-[#00E5A0] border border-[rgba(0,229,160,0.15)]">
+                    <span key={t} style={{ fontSize: '0.625rem', fontWeight: 600, padding: '0.125rem 0.5rem', borderRadius: '100px', background: 'rgba(0,229,160,0.1)', color: '#00E5A0', border: '1px solid rgba(0,229,160,0.15)' }}>
                       {t}
                     </span>
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 
         {/* Scroll indicator */}
         <motion.button
-          onClick={scrollDown}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#2E4A3A] hover:text-[#00E5A0] transition-colors"
+          onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+          style={{
+            position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
+            color: '#2E4A3A', background: 'none', border: 'none', cursor: 'none', transition: 'color 0.3s',
+          }}
           animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#00E5A0'}
+          onMouseLeave={e => e.currentTarget.style.color = '#2E4A3A'}
         >
-          <span className="text-[10px] font-semibold tracking-widest uppercase">Scroll</span>
-          <ArrowDown size={16} />
+          <span style={{ fontSize: '0.5625rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>Scroll</span>
+          <ArrowDown size={14} />
         </motion.button>
       </div>
+
+      <style>{`
+        @keyframes ping {
+          75%, 100% { transform: scale(2); opacity: 0; }
+        }
+      `}</style>
     </section>
   );
 };

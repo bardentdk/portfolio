@@ -107,7 +107,7 @@ const About = () => {
           </h2>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-16 xl:gap-24">
+        <div className="about-grid">
 
           {/* ─ Gauche : bio + langues ─ */}
           <div>
@@ -137,7 +137,7 @@ const About = () => {
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#6B9980] mb-5">
                 <Languages size={14} className="text-[#00E5A0]" /> Langues parlées
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="lang-grid">
                 {languages.map(({ name, level, flag }) => (
                   <div key={name} className="glass rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">

@@ -127,7 +127,7 @@ const Projects = () => {
 
       <div className="container-custom">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="section-header-row">
           <motion.div {...fadeIn(0)}>
             <div className="section-label">Projets</div>
             <h2 className="font-display font-black text-[clamp(2rem,4vw,3.5rem)] text-[#EEF5F1] leading-tight tracking-tight">
@@ -136,7 +136,7 @@ const Projects = () => {
           </motion.div>
 
           {/* Filtres */}
-          <motion.div {...fadeIn(0.1)} className="flex flex-wrap gap-2">
+          <motion.div {...fadeIn(0.1)} className="filter-row">
             {ALL_TAGS.map(tag => (
               <button
                 key={tag}
@@ -155,7 +155,7 @@ const Projects = () => {
 
         {/* Grid */}
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="projects-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden">
                 <div className="shimmer aspect-video" />
@@ -168,7 +168,7 @@ const Projects = () => {
             ))}
           </div>
         ) : (
-          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div layout className="container-custom" style={{position:"relative",zIndex:10}}>
             <AnimatePresence mode="popLayout">
               {filtered.map((project, i) => (
                 <ProjectCard key={project.id} project={project} index={i} />
