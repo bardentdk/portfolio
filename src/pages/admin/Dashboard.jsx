@@ -262,7 +262,6 @@ const Dashboard = () => {
 
       {/* Bottom row */}
       <div className="grid lg:grid-cols-2 gap-6">
-
         {/* Top pages */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

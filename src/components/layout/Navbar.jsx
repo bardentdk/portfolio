@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Download } from 'lucide-react';
+import CustomLogo from '../ui/CustomLogo';
 
 const NAV_LINKS = [
   { label: 'Accueil',     id: 'hero' },
@@ -57,17 +58,18 @@ const Navbar = () => {
 
           {/* ─ Logo ─ */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
-            <div style={{
+            {/* <div style={{
               width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem',
               background: 'linear-gradient(135deg, #00E5A0, #007A54)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 0 20px rgba(0,229,160,0.3)',
             }}>
               <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, color: '#050E0A', fontSize: '0.875rem' }}>DT</span>
-            </div>
+            </div> */}
             <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem', color: '#EEF5F1' }}>
+              <CustomLogo />
               {/* Velt<span className="text-gradient">.</span>re */}
-              <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" className='brightness' width={100}/>
+              {/* <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" className='fill-white' width={100}/> */}
             </span>
           </Link>
 

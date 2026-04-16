@@ -30,9 +30,9 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00E5A0] to-[#007A54] flex items-center justify-center">
+              {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00E5A0] to-[#007A54] flex items-center justify-center">
                 <span className="font-display font-black text-[#050E0A] text-sm">DT</span>
-              </div>
+              </div> */}
               <span className="font-display font-semibold text-lg text-[#EEF5F1]">
                 <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" width={100}/>
                 {/* Velt<span className="text-gradient">.</span>re */}
