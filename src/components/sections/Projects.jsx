@@ -18,10 +18,10 @@ const ProjectCard = ({ project, index }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 20, scale: 0.95 }}
     transition={{ duration: 0.5, delay: index * 0.06, ease: [0.19, 1, 0.22, 1] }}
-    className="group relative glass rounded-2xl overflow-hidden hover:border-[rgba(0,229,160,0.2)] transition-all duration-500 hover:shadow-[0_8px_40px_rgba(0,229,160,0.08)]"
+    className="group relative glass rounded-2xl overflow-hidden hover:border-[rgba(0,229,160,0.2)] transition-all duration-500 hover:shadow-[0_8px_40px_rgba(0,229,160,0.08)] flex flex-col h-full"
   >
     {/* Cover */}
-    <div className="relative overflow-hidden aspect-[16/9] bg-gradient-to-br from-[#0C1A13] to-[#1A2E23]">
+    <div className="relative overflow-hidden aspect-[16/9] bg-gradient-to-br from-[#0C1A13] to-[#1A2E23] flex-shrink-0">
       {project.cover_url
         ? <img
             src={project.cover_url}
@@ -60,28 +60,28 @@ const ProjectCard = ({ project, index }) => (
     </div>
 
     {/* Content */}
-    <div className="p-5">
+    <div className="p-6 flex flex-col flex-grow">
       {/* Tags */}
       {project.tags?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-2 mb-4">
           {project.tags.slice(0, 3).map(tag => (
             <span key={tag} className="tag">{tag}</span>
           ))}
         </div>
       )}
 
-      <h3 className="font-display font-bold text-[#EEF5F1] text-[1rem] mb-2 leading-tight group-hover:text-[#00E5A0] transition-colors">
+      <h3 className="font-display font-bold text-[#EEF5F1] text-[1.1rem] mb-2 leading-tight group-hover:text-[#00E5A0] transition-colors">
         {project.title}
       </h3>
-      <p className="text-sm text-[#6B9980] leading-relaxed mb-4 line-clamp-2">
+      <p className="text-sm text-[#6B9980] leading-relaxed mb-6 line-clamp-2 flex-grow">
         {project.description}
       </p>
 
       {/* Tech stack pills */}
       {project.tech_stack?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-5 mt-auto">
           {project.tech_stack.slice(0, 4).map(tech => (
-            <span key={tech} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[rgba(0,229,160,0.06)] text-[#6B9980] border border-[rgba(0,229,160,0.1)]">
+            <span key={tech} className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[rgba(0,229,160,0.06)] text-[#6B9980] border border-[rgba(0,229,160,0.1)]">
               {tech}
             </span>
           ))}
@@ -90,9 +90,9 @@ const ProjectCard = ({ project, index }) => (
 
       <Link
         to={`/projects/${project.slug}`}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00E5A0] hover:gap-3 transition-all duration-300"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-[#00E5A0] hover:gap-3 transition-all duration-300 w-fit"
       >
-        Voir le projet <ArrowRight size={12} />
+        Voir le projet <ArrowRight size={14} />
       </Link>
     </div>
   </motion.article>
@@ -125,7 +125,7 @@ const Projects = () => {
       <div className="absolute left-0 top-1/2 w-80 h-80 rounded-full pointer-events-none opacity-30"
         style={{ background: 'radial-gradient(circle,rgba(0,229,160,0.07) 0%,transparent 70%)' }} />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full" style={{position:"relative",zIndex:10}}>
+      <div className="container-custom">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
           <motion.div {...fadeIn(0)}>
@@ -141,7 +141,7 @@ const Projects = () => {
               <button
                 key={tag}
                 onClick={() => setActiveTag(tag)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ${
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                   activeTag === tag
                     ? 'bg-[#00E5A0] text-[#050E0A]'
                     : 'glass text-[#6B9980] hover:text-[#EEF5F1] hover:border-[rgba(0,229,160,0.2)]'
@@ -157,18 +157,22 @@ const Projects = () => {
         {isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden">
-                <div className="shimmer aspect-video" />
-                <div className="p-5 space-y-3">
-                  <div className="shimmer h-4 rounded w-3/4" />
-                  <div className="shimmer h-3 rounded w-full" />
-                  <div className="shimmer h-3 rounded w-2/3" />
+              <div key={i} className="rounded-2xl overflow-hidden glass flex flex-col h-full">
+                <div className="shimmer aspect-[16/9]" />
+                <div className="p-6 space-y-4 flex-grow">
+                  <div className="shimmer h-5 rounded w-3/4" />
+                  <div className="shimmer h-4 rounded w-full" />
+                  <div className="shimmer h-4 rounded w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <motion.div layout className="container-custom" style={{position:"relative",zIndex:10}}>
+          <motion.div 
+            layout 
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full" 
+            style={{position:"relative", zIndex:10}}
+          >
             <AnimatePresence mode="popLayout">
               {filtered.map((project, i) => (
                 <ProjectCard key={project.id} project={project} index={i} />
