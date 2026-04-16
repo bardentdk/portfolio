@@ -200,3 +200,297 @@ body {
   content:''; display:block;
   width:24px; height:1.5px; background:var(--accent);
 }
+
+/* ══ LAYOUT FIXES ══ */
+
+/* container-custom doit exposer flex quand utilisé avec la classe flex de Tailwind */
+/* Fix: on force les règles critiques de layout directement en CSS */
+
+/* Navbar inner row */
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Desktop nav : visible par défaut sur grand écran, caché sur mobile */
+.nav-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+}
+
+/* CTA desktop : même logique */
+.nav-cta {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-cta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+/* Burger : visible seulement sur mobile */
+.nav-burger {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .nav-burger {
+    display: none;
+  }
+}
+
+/* Hero grid */
+.hero-grid {
+  display: grid;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Hero right card: visible seulement desktop */
+.hero-card-col {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-card-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+}
+
+/* Stats row */
+.stats-row {
+  display: flex;
+  gap: 2.5rem;
+}
+
+/* Buttons row */
+.buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 3.5rem;
+}
+
+/* Section header row */
+.section-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-header-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+/* Filter pills row */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Projects grid */
+.projects-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Skills grid */
+.skills-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* About grid */
+.about-grid {
+  display: grid;
+  gap: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .about-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+  }
+}
+
+/* Contact grid */
+.contact-grid {
+  display: grid;
+  gap: 3rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .contact-grid {
+    grid-template-columns: 2fr 3fr;
+  }
+}
+
+/* Footer grid */
+.footer-grid {
+  display: grid;
+  gap: 3rem;
+}
+
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Admin stat cards grid */
+.stat-cards-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1280px) {
+  .stat-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Admin charts grid */
+.charts-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Admin bottom grid */
+.admin-bottom-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .admin-bottom-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Language cards grid */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Info cards column */
+.info-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Social links row */
+.social-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Form two-col */
+.form-2col {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .form-2col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-3col {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .form-3col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Inline flex utilities critiques */
+.flex-row    { display: flex; }
+.flex-col    { display: flex; flex-direction: column; }
+.items-center  { align-items: center; }
+.items-start   { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+.justify-end     { justify-content: flex-end; }
+.flex-1      { flex: 1 1 0%; }
+.flex-wrap   { flex-wrap: wrap; }
+.flex-shrink-0 { flex-shrink: 0; }
+.min-w-0     { min-width: 0; }
+.gap-1   { gap: 0.25rem; }
+.gap-2   { gap: 0.5rem; }
+.gap-3   { gap: 0.75rem; }
+.gap-4   { gap: 1rem; }
+.gap-5   { gap: 1.25rem; }
+.gap-6   { gap: 1.5rem; }
+.gap-8   { gap: 2rem; }
+.gap-10  { gap: 2.5rem; }
+.gap-12  { gap: 3rem; }

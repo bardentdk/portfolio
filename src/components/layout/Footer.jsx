@@ -25,7 +25,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-[rgba(0,229,160,0.08)] bg-[#080F0B]">
       <div className="container-custom py-16">
-        <div className="footer-grid">
+        <div className="grid md:grid-cols-3 gap-12">
 
           {/* Brand */}
           <div>
@@ -62,7 +62,7 @@ const Footer = () => {
           {/* Réseaux */}
           <div>
             <h4 className="font-display font-semibold text-xs text-[#EEF5F1] mb-5 uppercase tracking-widest">Réseaux</h4>
-            <div className="social-row">
+            <div className="flex flex-wrap gap-3">
               {links.length > 0 ? links.map(({ icon: Icon, href, label }) => (
                 <motion.a
                   key={label}

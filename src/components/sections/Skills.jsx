@@ -98,7 +98,7 @@ const Skills = () => {
           </motion.div>
 
           {/* Tabs catégorie */}
-          <motion.div {...fadeIn(0.1)} className="filter-row">
+          <motion.div {...fadeIn(0.1)} className="flex flex-wrap gap-2">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -117,7 +117,7 @@ const Skills = () => {
 
         {/* Grid skills */}
         {isLoading ? (
-          <div className="skills-grid">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="shimmer h-20 rounded-xl" />
             ))}

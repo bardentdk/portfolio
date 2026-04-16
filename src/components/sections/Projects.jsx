@@ -125,9 +125,9 @@ const Projects = () => {
       <div className="absolute left-0 top-1/2 w-80 h-80 rounded-full pointer-events-none opacity-30"
         style={{ background: 'radial-gradient(circle,rgba(0,229,160,0.07) 0%,transparent 70%)' }} />
 
-      <div className="container-custom">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full" style={{position:"relative",zIndex:10}}>
         {/* Header */}
-        <div className="section-header-row">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
           <motion.div {...fadeIn(0)}>
             <div className="section-label">Projets</div>
             <h2 className="font-display font-black text-[clamp(2rem,4vw,3.5rem)] text-[#EEF5F1] leading-tight tracking-tight">
@@ -136,7 +136,7 @@ const Projects = () => {
           </motion.div>
 
           {/* Filtres */}
-          <motion.div {...fadeIn(0.1)} className="filter-row">
+          <motion.div {...fadeIn(0.1)} className="flex flex-wrap gap-2">
             {ALL_TAGS.map(tag => (
               <button
                 key={tag}
@@ -155,7 +155,7 @@ const Projects = () => {
 
         {/* Grid */}
         {isLoading ? (
-          <div className="projects-grid">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-2xl overflow-hidden">
                 <div className="shimmer aspect-video" />

@@ -69,7 +69,7 @@ const Hero = () => {
       <div style={{ position: 'absolute', right: '-10rem', bottom: '-5rem', width: '500px', height: '500px', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle,rgba(0,194,128,0.06) 0%,transparent 65%)' }} />
 
       <div className="container-custom" style={{ position: 'relative', zIndex: 10, paddingTop: '9rem', paddingBottom: '7rem' }}>
-        <div className="hero-grid">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center">
 
           {/* ─ Colonne gauche ─ */}
           <div>
@@ -111,7 +111,7 @@ const Hero = () => {
             </motion.p>
 
             {/* Boutons */}
-            <motion.div {...fadeUp(0.42)} className="buttons-row">
+            <motion.div {...fadeUp(0.42)} className="flex flex-wrap gap-4 mb-14">
               <button
                 onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
                 className="btn-primary"
@@ -127,7 +127,7 @@ const Hero = () => {
             </motion.div>
 
             {/* Stats */}
-            <motion.div {...fadeUp(0.52)} className="stats-row">
+            <motion.div {...fadeUp(0.52)} className="flex flex-wrap gap-8 sm:gap-12">
               {stats.map(({ value, label }) => (
                 <div key={label}>
                   <div className="text-gradient" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1, marginBottom: '0.25rem' }}>{value}</div>
@@ -138,7 +138,7 @@ const Hero = () => {
           </div>
 
           {/* ─ Colonne droite — carte flottante (desktop only) ─ */}
-          <motion.div {...fadeUp(0.3)} className="hero-card-col">
+          <motion.div {...fadeUp(0.3)} className="hidden lg:flex justify-center items-center relative">
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}

@@ -177,14 +177,14 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Stats cards */}
-      <div className="stat-cards-grid">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
         {statCards.map((s, i) => (
           <StatCard key={s.label} {...s} delay={i * 0.07} />
         ))}
       </div>
 
       {/* Charts row */}
-      <div className="charts-grid">
+      <div className="grid lg:grid-cols-[2fr_1fr] gap-6 mb-6">
 
         {/* Vues 14j */}
         <motion.div
@@ -261,7 +261,7 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom row */}
-      <div className="admin-bottom-grid">
+      <div className="grid lg:grid-cols-2 gap-6">
 
         {/* Top pages */}
         <motion.div

@@ -53,7 +53,7 @@ const Navbar = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
       >
-        <div className="container-custom navbar-inner">
+        <div className="container-custom flex items-center justify-between w-full">
 
           {/* ─ Logo ─ */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
@@ -71,7 +71,7 @@ const Navbar = () => {
           </Link>
 
           {/* ─ Desktop Nav ─ */}
-          <nav className="nav-desktop">
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(({ label, id }) => (
               <button
                 key={id}
@@ -110,7 +110,7 @@ const Navbar = () => {
           </nav>
 
           {/* ─ CTA desktop ─ */}
-          <div className="nav-cta">
+          <div className="hidden md:flex items-center gap-2">
             <a
               href="/cv-djebarlen-tambon.pdf"
               download
@@ -130,7 +130,7 @@ const Navbar = () => {
 
           {/* ─ Burger mobile ─ */}
           <button
-            className="nav-burger"
+            className="md:hidden flex items-center justify-center p-2 text-[#6B9980]"
             style={{
               padding: '0.5rem', background: 'none', border: 'none',
               color: '#6B9980', cursor: 'none', alignItems: 'center', justifyContent: 'center',

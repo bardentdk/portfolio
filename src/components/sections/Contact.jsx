@@ -59,10 +59,10 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        <div className="contact-grid">
+        <div className="grid lg:grid-cols-[350px_1fr] gap-12 max-w-5xl mx-auto">
 
           {/* ─ Infos ─ */}
-          <motion.div {...fadeIn(0.1)} className="info-cards-col">
+          <motion.div {...fadeIn(0.1)} className="flex flex-col gap-5">
             {infos.map(({ icon: Icon, label, value, href }) => (
               <div key={label} className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-[rgba(0,229,160,0.2)] transition-all group">
                 <div className="w-10 h-10 rounded-xl bg-[rgba(0,229,160,0.1)] flex items-center justify-center flex-shrink-0 group-hover:bg-[rgba(0,229,160,0.15)] transition-colors">
@@ -96,7 +96,7 @@ const Contact = () => {
           {/* ─ Formulaire ─ */}
           <motion.div {...fadeIn(0.18)} className="lg:col-span-3">
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-7 space-y-5">
-              <div className="form-2col">
+              <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs font-semibold text-[#6B9980] uppercase tracking-widest mb-2">Nom *</label>
                   <input
