@@ -8,9 +8,9 @@ const Footer = () => {
 
   const links = [
     { icon: GitBranch,    href: social.github    || null, label: 'GitHub' },
-    { icon: Link2,        href: social.linkedin   || null, label: 'LinkedIn' },
-    { icon: ExternalLink, href: social.facebook   || null, label: 'Facebook' },
-    { icon: AtSign,       href: social.instagram  || null, label: 'Instagram' },
+    { icon: Link2,        href: social.linkedin  || null, label: 'LinkedIn' },
+    { icon: ExternalLink, href: social.facebook  || null, label: 'Facebook' },
+    { icon: AtSign,       href: social.instagram || null, label: 'Instagram' },
     { icon: Mail,         href: social.email ? `mailto:${social.email}` : null, label: 'Email' },
   ].filter(l => l.href);
 
@@ -25,11 +25,11 @@ const Footer = () => {
   return (
     <footer className="border-t border-[rgba(0,229,160,0.08)] bg-[#080F0B]">
       <div className="container-custom py-16">
-        <div className="grid md:grid-cols-3 gap-12">
+        <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
 
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex items-center gap-2.5 mb-5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00E5A0] to-[#007A54] flex items-center justify-center">
                 <span className="font-display font-black text-[#050E0A] text-sm">DT</span>
               </div>
@@ -45,12 +45,12 @@ const Footer = () => {
           {/* Navigation */}
           <div>
             <h4 className="font-display font-semibold text-xs text-[#EEF5F1] mb-5 uppercase tracking-widest">Navigation</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-3 list-none p-0 m-0">
               {navItems.map(({ label, id }) => (
                 <li key={id}>
                   <button
                     onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
-                    className="text-sm text-[#6B9980] hover:text-[#00E5A0] transition-colors"
+                    className="text-sm text-[#6B9980] hover:text-[#00E5A0] transition-colors p-0 text-left"
                   >
                     {label}
                   </button>
@@ -84,12 +84,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-[rgba(0,229,160,0.06)] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-[#2E4A3A]">
+        <div className="mt-16 pt-8 border-t border-[rgba(0,229,160,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#6B9980]">
             © {new Date().getFullYear()} Djebarlen Tambon — Tous droits réservés
           </p>
-          <p className="text-xs text-[#2E4A3A] flex items-center gap-1.5">
-            Fait avec <Heart size={10} className="text-[#00E5A0]" fill="currentColor" /> à La Réunion
+          <p className="text-xs text-[#6B9980] flex items-center gap-1.5">
+            Fait avec <Heart size={12} className="text-[#00E5A0]" fill="currentColor" /> à La Réunion
           </p>
         </div>
       </div>

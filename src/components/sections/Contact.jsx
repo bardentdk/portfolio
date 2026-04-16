@@ -59,10 +59,11 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[350px_1fr] gap-12 max-w-5xl mx-auto">
+        {/* Correction de la grille pour mettre côte à côte */}
+        <div className="grid lg:grid-cols-[350px_1fr] gap-10 lg:gap-16 max-w-5xl mx-auto">
 
           {/* ─ Infos ─ */}
-          <motion.div {...fadeIn(0.1)} className="flex flex-col gap-5">
+          <motion.div {...fadeIn(0.1)} className="flex flex-col gap-4">
             {infos.map(({ icon: Icon, label, value, href }) => (
               <div key={label} className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-[rgba(0,229,160,0.2)] transition-all group">
                 <div className="w-10 h-10 rounded-xl bg-[rgba(0,229,160,0.1)] flex items-center justify-center flex-shrink-0 group-hover:bg-[rgba(0,229,160,0.15)] transition-colors">
@@ -94,31 +95,21 @@ const Contact = () => {
           </motion.div>
 
           {/* ─ Formulaire ─ */}
-          <motion.div {...fadeIn(0.18)} className="lg:col-span-3">
+          <motion.div {...fadeIn(0.18)}>
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-7 space-y-5">
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs font-semibold text-[#6B9980] uppercase tracking-widest mb-2">Nom *</label>
                   <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="Votre nom"
-                    className="input-field"
+                    type="text" name="name" value={form.name} onChange={handleChange}
+                    required placeholder="Votre nom" className="input-field"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#6B9980] uppercase tracking-widest mb-2">Email *</label>
                   <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="votre@email.com"
-                    className="input-field"
+                    type="email" name="email" value={form.email} onChange={handleChange}
+                    required placeholder="votre@email.com" className="input-field"
                   />
                 </div>
               </div>
@@ -126,55 +117,33 @@ const Contact = () => {
               <div>
                 <label className="block text-xs font-semibold text-[#6B9980] uppercase tracking-widest mb-2">Sujet</label>
                 <input
-                  type="text"
-                  name="subject"
-                  value={form.subject}
-                  onChange={handleChange}
-                  placeholder="De quoi souhaitez-vous parler ?"
-                  className="input-field"
+                  type="text" name="subject" value={form.subject} onChange={handleChange}
+                  placeholder="De quoi souhaitez-vous parler ?" className="input-field"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-[#6B9980] uppercase tracking-widest mb-2">Message *</label>
                 <textarea
-                  name="message"
-                  value={form.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  placeholder="Décrivez votre projet ou votre demande..."
+                  name="message" value={form.message} onChange={handleChange}
+                  required rows={5} placeholder="Décrivez votre projet ou votre demande..."
                   className="input-field resize-none"
                 />
               </div>
 
               {/* Status messages */}
               {status === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(0,229,160,0.08)] border border-[rgba(0,229,160,0.2)] text-[#00E5A0] text-sm"
-                >
-                  <CheckCircle size={16} />
-                  Message envoyé ! Je vous recontacte très vite.
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(0,229,160,0.08)] border border-[rgba(0,229,160,0.2)] text-[#00E5A0] text-sm">
+                  <CheckCircle size={16} /> Message envoyé ! Je vous recontacte très vite.
                 </motion.div>
               )}
               {status === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(255,80,50,0.08)] border border-[rgba(255,80,50,0.2)] text-red-400 text-sm"
-                >
-                  <AlertCircle size={16} />
-                  Une erreur est survenue. Essayez par email directement.
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(255,80,50,0.08)] border border-[rgba(255,80,50,0.2)] text-red-400 text-sm">
+                  <AlertCircle size={16} /> Une erreur est survenue. Essayez par email directement.
                 </motion.div>
               )}
 
-              <button
-                type="submit"
-                disabled={isPending}
-                className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
-              >
+              <button type="submit" disabled={isPending} className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed">
                 {isPending ? (
                   <span className="flex items-center gap-2">
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
