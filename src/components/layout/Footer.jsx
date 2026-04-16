@@ -23,8 +23,8 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="border-t border-[rgba(0,229,160,0.08)] bg-[#080F0B]">
-      <div className="container-custom py-16">
+    <footer className="border-t border-[rgba(0,229,160,0.08)] bg-[#080F0B] pb-10">
+      <div className="container-custom py-16 relative top-20">
         <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
 
           {/* Brand */}
@@ -34,7 +34,8 @@ const Footer = () => {
                 <span className="font-display font-black text-[#050E0A] text-sm">DT</span>
               </div>
               <span className="font-display font-semibold text-lg text-[#EEF5F1]">
-                Velt<span className="text-gradient">.</span>re
+                <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" width={100}/>
+                {/* Velt<span className="text-gradient">.</span>re */}
               </span>
             </div>
             <p className="text-sm text-[#6B9980] leading-relaxed max-w-xs">
@@ -84,7 +85,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-[rgba(0,229,160,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-16 pt-8 border-t border-[rgba(0,229,160,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4 py-20">
           <p className="text-xs text-[#6B9980]">
             © {new Date().getFullYear()} Djebarlen Tambon — Tous droits réservés
           </p>

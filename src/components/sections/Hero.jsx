@@ -148,7 +148,7 @@ const Hero = () => {
             >
               {/* Conteneur principal de l'image */}
               <div className="glass p-2 rounded-[2rem] shadow-[0_0_80px_rgba(0,229,160,0.12)]">
-                <div className="relative aspect-[3/4] w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-[#0C1A13] to-[#1A2E23] group">
+                <div className="relative sm:aspect-[9/16] aspect-[3/4] w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-[#0C1A13] to-[#1A2E23] group">
                   <img 
                     src={Djeb} 
                     alt="Djebarlen Tambon" 

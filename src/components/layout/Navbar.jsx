@@ -66,7 +66,8 @@ const Navbar = () => {
               <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, color: '#050E0A', fontSize: '0.875rem' }}>DT</span>
             </div>
             <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '1rem', color: '#EEF5F1' }}>
-              Velt<span className="text-gradient">.</span>re
+              {/* Velt<span className="text-gradient">.</span>re */}
+              <img src="https://velt.re/build/assets/logo-DQBvSblT.svg" alt="" className='brightness' width={100}/>
             </span>
           </Link>
 
