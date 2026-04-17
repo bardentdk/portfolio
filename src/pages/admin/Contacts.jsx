@@ -1,225 +1,306 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Mail, Check, Archive, Trash2, Eye } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import toast from 'react-hot-toast';
-import { useContacts, useUpdateContactStatus } from '../../hooks/useContacts';
-import { supabase } from '../../lib/supabase';
-import { useQueryClient } from '@tanstack/react-query';
-import AdminPageHeader from '../../components/admin/AdminPageHeader';
-import Modal           from '../../components/admin/Modal';
-import ConfirmDialog   from '../../components/admin/ConfirmDialog';
+import { motion } from 'framer-motion';
+import { Send, MapPin, Mail, Phone, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useSubmitContact } from '../../hooks/useContacts';
+import { useSettings }      from '../../hooks/useSettings';
+import { useEmailConfig }   from '../../hooks/useEmailConfig';
+import { sendOwnerNotification, sendConfirmation } from '../../lib/emailjs';
 
-const STATUS_COLORS = {
-  new:      'bg-[rgba(0,229,160,0.12)] text-[#00E5A0]',
-  read:     'bg-[rgba(255,255,255,0.06)] text-[#6B9980]',
-  replied:  'bg-[rgba(0,180,255,0.12)] text-[#00B4FF]',
-  archived: 'bg-[rgba(255,255,255,0.04)] text-[#2E4A3A]',
-};
+const fadeIn = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-50px' },
+  transition: { duration: 0.8, delay, ease: [0.19, 1, 0.22, 1] },
+});
 
-const STATUS_LABELS = { new: 'Nouveau', read: 'Lu', replied: 'Répondu', archived: 'Archivé' };
+const INITIAL_FORM = { name: '', email: '', subject: '', message: '' };
 
-const Contacts = () => {
-  const qc = useQueryClient();
-  const { data: contacts, isLoading } = useContacts();
-  const updateStatus = useUpdateContactStatus();
-  const [selected, setSelected] = useState(null);
-  const [confirm,  setConfirm]  = useState(null);
-  const [filter,   setFilter]   = useState('all');
+// Statuts possibles de l'envoi
+const STATUS = { IDLE: 'idle', SENDING: 'sending', SUCCESS: 'success', ERROR: 'error' };
 
-  const displayed = filter === 'all'
-    ? contacts
-    : contacts?.filter(c => c.status === filter);
+const Contact = () => {
+  const { data: socialData } = useSettings('social');
+  const { data: emailConfig } = useEmailConfig();
+  const social = socialData?.value || {};
 
-  const handleStatus = async (id, status) => {
+  const [form,   setForm]   = useState(INITIAL_FORM);
+  const [status, setStatus] = useState(STATUS.IDLE);
+  const [errMsg, setErrMsg] = useState('');
+
+  const { mutateAsync: saveToSupabase } = useSubmitContact();
+
+  const handleChange = (e) =>
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(STATUS.SENDING);
+    setErrMsg('');
+
     try {
-      await updateStatus.mutateAsync({ id, status });
-      toast.success('Statut mis à jour.');
-    } catch (err) { toast.error(err.message); }
+      // ── 1. Sauvegarde dans Supabase (toujours, même si EmailJS échoue)
+      await saveToSupabase(form);
+
+      // ── 2. Email notif au propriétaire via EmailJS
+      await sendOwnerNotification(form, emailConfig || {});
+
+      // ── 3. Email de confirmation au visiteur
+      await sendConfirmation(form);
+
+      setStatus(STATUS.SUCCESS);
+      setForm(INITIAL_FORM);
+    } catch (err) {
+      console.error('[Contact] Erreur envoi :', err);
+
+      // Si c'est uniquement EmailJS qui plante (le message est quand même en DB)
+      if (err?.text || err?.status) {
+        setErrMsg(
+          'Votre message a bien été enregistré, mais l\'envoi de l\'email a échoué. Contactez-moi directement par email.'
+        );
+      } else {
+        setErrMsg('Une erreur est survenue. Réessayez ou contactez-moi directement.');
+      }
+      setStatus(STATUS.ERROR);
+    }
   };
 
-  const handleDelete = async () => {
-    try {
-      const { error } = await supabase.from('contacts').delete().eq('id', confirm);
-      if (error) throw error;
-      qc.invalidateQueries(['contacts']);
-      toast.success('Message supprimé.');
-      setConfirm(null);
-      if (selected?.id === confirm) setSelected(null);
-    } catch (err) { toast.error(err.message); }
-  };
+  const infos = [
+    {
+      icon: MapPin,
+      label: 'Localisation',
+      value: 'Saint-Denis, La Réunion',
+      href: null,
+    },
+    {
+      icon: Mail,
+      label: 'Email',
+      value: social.email || 'contact@velt.re',
+      href: `mailto:${social.email || 'contact@velt.re'}`,
+    },
+    {
+      icon: Phone,
+      label: 'Téléphone',
+      value: '+262 693 057 066',
+      href: 'tel:+262693057066',
+    },
+  ];
 
-  const openMessage = (c) => {
-    setSelected(c);
-    if (c.status === 'new') handleStatus(c.id, 'read');
-  };
-
-  const counts = {
-    all:      contacts?.length || 0,
-    new:      contacts?.filter(c => c.status === 'new').length || 0,
-    read:     contacts?.filter(c => c.status === 'read').length || 0,
-    replied:  contacts?.filter(c => c.status === 'replied').length || 0,
-    archived: contacts?.filter(c => c.status === 'archived').length || 0,
-  };
+  const isLoading = status === STATUS.SENDING;
 
   return (
-    <div className="p-8">
-      <AdminPageHeader
-        title="Messages"
-        description={`${counts.new} non lu(s) · ${counts.all} au total`}
-      />
+    <section id="contact" className="section-padding" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Orb déco */}
+      <div style={{
+        position: 'absolute', left: '50%', top: 0,
+        transform: 'translateX(-50%)',
+        width: '600px', height: '300px',
+        pointerEvents: 'none', opacity: 0.4,
+        background: 'radial-gradient(ellipse,rgba(0,229,160,0.07) 0%,transparent 70%)',
+      }} />
 
-      {/* Filtres */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {[
-          { key: 'all',      label: 'Tous' },
-          { key: 'new',      label: 'Nouveaux' },
-          { key: 'read',     label: 'Lus' },
-          { key: 'replied',  label: 'Répondus' },
-          { key: 'archived', label: 'Archivés' },
-        ].map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              filter === key ? 'bg-[#00E5A0] text-[#050E0A]' : 'glass text-[#6B9980] hover:text-[#EEF5F1]'
-            }`}
-          >
-            {label}
-            {counts[key] > 0 && (
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${filter === key ? 'bg-[rgba(5,14,10,0.3)]' : 'bg-[rgba(0,229,160,0.15)] text-[#00E5A0]'}`}>
-                {counts[key]}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="container-custom">
+        {/* ─ Header ─ */}
+        <motion.div {...fadeIn(0)} style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <div className="section-label" style={{ justifyContent: 'center' }}>Contact</div>
+          <h2 style={{
+            fontFamily: 'Poppins, sans-serif', fontWeight: 900,
+            fontSize: 'clamp(2rem,4vw,3.5rem)',
+            color: '#EEF5F1', lineHeight: 1.1, letterSpacing: '-0.02em',
+          }}>
+            Travaillons <span className="text-gradient">ensemble</span>
+          </h2>
+          <p style={{ marginTop: '1rem', color: '#6B9980', maxWidth: '28rem', margin: '1rem auto 0', fontSize: '0.9rem', lineHeight: 1.7, fontWeight: 300 }}>
+            Un projet en tête ? Une question ? Je réponds généralement dans les 24h.
+          </p>
+        </motion.div>
+
+        <div className="contact-grid">
+          {/* ─ Infos ─ */}
+          <motion.div {...fadeIn(0.1)} className="info-cards-col">
+            {infos.map(({ icon: Icon, label, value, href }) => (
+              <div
+                key={label}
+                className="glass"
+                style={{
+                  borderRadius: '1rem', padding: '1.25rem',
+                  display: 'flex', alignItems: 'center', gap: '1rem',
+                  transition: 'border-color 0.3s',
+                }}
+              >
+                <div style={{
+                  width: '2.5rem', height: '2.5rem', borderRadius: '0.75rem',
+                  background: 'rgba(0,229,160,0.1)', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <Icon size={16} color="#00E5A0" />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#6B9980', marginBottom: '0.125rem' }}>
+                    {label}
+                  </div>
+                  {href
+                    ? <a href={href} style={{ fontSize: '0.875rem', fontWeight: 500, color: '#EEF5F1', textDecoration: 'none', transition: 'color 0.2s' }}
+                        onMouseEnter={e => e.target.style.color = '#00E5A0'}
+                        onMouseLeave={e => e.target.style.color = '#EEF5F1'}
+                      >{value}</a>
+                    : <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#EEF5F1' }}>{value}</span>
+                  }
+                </div>
+              </div>
+            ))}
+
+            {/* Carte dispo */}
+            <div className="glass" style={{ borderRadius: '1rem', padding: '1.25rem', border: '1px solid rgba(0,229,160,0.15)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ position: 'relative', display: 'flex', width: '0.5rem', height: '0.5rem' }}>
+                  <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#00E5A0', opacity: 0.7, animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite' }} />
+                  <span style={{ position: 'relative', display: 'flex', width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: '#00E5A0' }} />
+                </span>
+                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#00E5A0', textTransform: 'uppercase', letterSpacing: '0.14em' }}>Disponible</span>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#6B9980', lineHeight: 1.6 }}>
+                Ouvert aux missions freelance, CDI et collaborations sur La Réunion et à distance.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* ─ Formulaire ─ */}
+          <motion.div {...fadeIn(0.18)}>
+            <form
+              onSubmit={handleSubmit}
+              className="glass"
+              style={{ borderRadius: '1.5rem', padding: '1.75rem' }}
+            >
+              {/* Nom + Email */}
+              <div className="form-2col" style={{ marginBottom: '1.25rem' }}>
+                <div>
+                  <label style={labelStyle}>Nom *</label>
+                  <input
+                    type="text" name="name"
+                    value={form.name} onChange={handleChange}
+                    required placeholder="Votre nom"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Email *</label>
+                  <input
+                    type="email" name="email"
+                    value={form.email} onChange={handleChange}
+                    required placeholder="votre@email.com"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              {/* Sujet */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={labelStyle}>Sujet</label>
+                <input
+                  type="text" name="subject"
+                  value={form.subject} onChange={handleChange}
+                  placeholder="De quoi souhaitez-vous parler ?"
+                  className="input-field"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Message */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={labelStyle}>Message *</label>
+                <textarea
+                  name="message"
+                  value={form.message} onChange={handleChange}
+                  required rows={5}
+                  placeholder="Décrivez votre projet ou votre demande..."
+                  className="input-field"
+                  style={{ resize: 'none' }}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* ─ Status messages ─ */}
+              {status === STATUS.SUCCESS && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                    padding: '1rem', borderRadius: '0.875rem', marginBottom: '1.25rem',
+                    background: 'rgba(0,229,160,0.07)',
+                    border: '1px solid rgba(0,229,160,0.2)',
+                    color: '#00E5A0', fontSize: '0.875rem',
+                  }}
+                >
+                  <CheckCircle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Message envoyé avec succès !</div>
+                    <div style={{ fontSize: '0.8125rem', opacity: 0.8 }}>
+                      Vous recevrez une confirmation par email. Je vous recontacte sous 24h.
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {status === STATUS.ERROR && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                    padding: '1rem', borderRadius: '0.875rem', marginBottom: '1.25rem',
+                    background: 'rgba(255,80,50,0.07)',
+                    border: '1px solid rgba(255,80,50,0.2)',
+                    color: '#ff7055', fontSize: '0.875rem',
+                  }}
+                >
+                  <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                  <div>{errMsg || 'Une erreur est survenue. Réessayez.'}</div>
+                </motion.div>
+              )}
+
+              {/* Bouton envoi */}
+              <button
+                type="submit"
+                disabled={isLoading || status === STATUS.SUCCESS}
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', opacity: (isLoading || status === STATUS.SUCCESS) ? 0.65 : 1 }}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                    Envoi en cours…
+                  </>
+                ) : status === STATUS.SUCCESS ? (
+                  <><CheckCircle size={15} /> Message envoyé !</>
+                ) : (
+                  <><Send size={15} /> Envoyer le message</>
+                )}
+              </button>
+
+              <p style={{ marginTop: '0.875rem', fontSize: '0.6875rem', color: '#2E4A3A', textAlign: 'center', lineHeight: 1.5 }}>
+                Vos données ne sont jamais partagées avec des tiers.
+              </p>
+            </form>
+          </motion.div>
+        </div>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="shimmer h-20 rounded-xl" />)}</div>
-      ) : (
-        <div className="space-y-2">
-          <AnimatePresence>
-            {displayed?.map((c, i) => (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25, delay: i * 0.03 }}
-                className={`glass rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-[rgba(0,229,160,0.15)] transition-all ${
-                  c.status === 'new' ? 'border-[rgba(0,229,160,0.12)]' : ''
-                }`}
-                onClick={() => openMessage(c)}
-              >
-                {/* Avatar */}
-                <div className="w-10 h-10 rounded-xl bg-[rgba(0,229,160,0.1)] flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#00E5A0]">
-                  {c.name.slice(0, 1).toUpperCase()}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-sm font-semibold ${c.status === 'new' ? 'text-[#EEF5F1]' : 'text-[#C8DDD4]'}`}>{c.name}</span>
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status]}`}>{STATUS_LABELS[c.status]}</span>
-                  </div>
-                  <p className="text-xs text-[#6B9980] truncate">{c.subject || c.message}</p>
-                </div>
-
-                {/* Date + actions */}
-                <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                  <span className="text-[10px] text-[#6B9980]">
-                    {format(new Date(c.created_at), 'd MMM', { locale: fr })}
-                  </span>
-                  <button
-                    onClick={() => handleStatus(c.id, c.status === 'replied' ? 'read' : 'replied')}
-                    title="Marquer comme répondu"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B9980] hover:text-[#00E5A0] hover:bg-[rgba(0,229,160,0.08)] transition-all"
-                  >
-                    <Check size={13} />
-                  </button>
-                  <button
-                    onClick={() => handleStatus(c.id, c.status === 'archived' ? 'read' : 'archived')}
-                    title="Archiver"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B9980] hover:text-[#6B9980] hover:bg-[rgba(255,255,255,0.06)] transition-all"
-                  >
-                    <Archive size={13} />
-                  </button>
-                  <button
-                    onClick={() => setConfirm(c.id)}
-                    title="Supprimer"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B9980] hover:text-red-400 hover:bg-[rgba(255,80,50,0.08)] transition-all"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {!displayed?.length && (
-            <div className="flex flex-col items-center justify-center py-16 text-center glass rounded-2xl">
-              <MessageSquare size={32} className="text-[#2E4A3A] mb-3" />
-              <p className="text-sm text-[#6B9980]">Aucun message dans cette catégorie</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Modal message */}
-      <Modal open={!!selected} onClose={() => setSelected(null)} title="Message" size="md">
-        {selected && (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#6B9980] mb-1">De</div>
-                <div className="text-sm font-semibold text-[#EEF5F1]">{selected.name}</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#6B9980] mb-1">Email</div>
-                <a href={`mailto:${selected.email}`} className="text-sm text-[#00E5A0] hover:underline">{selected.email}</a>
-              </div>
-              {selected.subject && (
-                <div className="col-span-2">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-[#6B9980] mb-1">Sujet</div>
-                  <div className="text-sm text-[#EEF5F1]">{selected.subject}</div>
-                </div>
-              )}
-              <div className="col-span-2">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-[#6B9980] mb-1">Reçu le</div>
-                <div className="text-sm text-[#C8DDD4]">{format(new Date(selected.created_at), "d MMMM yyyy 'à' HH:mm", { locale: fr })}</div>
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[#6B9980] mb-2">Message</div>
-              <div className="glass rounded-xl p-4 text-sm text-[#C8DDD4] leading-relaxed whitespace-pre-wrap">
-                {selected.message}
-              </div>
-            </div>
-            <div className="flex gap-3 pt-2 border-t border-[rgba(0,229,160,0.08)]">
-              <a href={`mailto:${selected.email}?subject=Re: ${selected.subject || 'Votre message'}`}
-                className="btn-primary flex-1 justify-center text-sm py-2.5">
-                <Mail size={14} /> Répondre par email
-              </a>
-              <button
-                onClick={() => { handleStatus(selected.id, 'replied'); setSelected(null); }}
-                className="btn-outline flex-1 justify-center text-sm py-2.5">
-                <Check size={14} /> Marquer répondu
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <ConfirmDialog
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
-        onConfirm={handleDelete}
-        title="Supprimer ce message ?"
-        description="Cette action est irréversible."
-      />
-    </div>
+      <style>{`
+        @keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }
+        @keyframes spin  { to { transform: rotate(360deg); } }
+      `}</style>
+    </section>
   );
 };
 
-export default Contacts;
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.6875rem', fontWeight: 700,
+  textTransform: 'uppercase', letterSpacing: '0.12em',
+  color: '#6B9980', marginBottom: '0.5rem',
+};
+
+export default Contact;

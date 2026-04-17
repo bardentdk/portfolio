@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, MapPin, Mail, Phone, CheckCircle, AlertCircle } from 'lucide-react';
+import { Send, MapPin, Mail, Phone, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useSubmitContact } from '../../hooks/useContacts';
-import { useSettings } from '../../hooks/useSettings';
+import { useSettings }      from '../../hooks/useSettings';
+import { useEmailConfig }   from '../../hooks/useEmailConfig';
+import { sendOwnerNotification, sendConfirmation } from '../../lib/emailjs';
 
 const fadeIn = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -14,26 +16,50 @@ const fadeIn = (delay = 0) => ({
 const INITIAL_FORM = { name: '', email: '', subject: '', message: '' };
 
 const Contact = () => {
-  const { data: socialData } = useSettings('social');
+  const { data: socialData }  = useSettings('social');
+  const { data: emailConfig } = useEmailConfig();
   const social = socialData?.value || {};
 
-  const [form,    setForm]    = useState(INITIAL_FORM);
-  const [status,  setStatus]  = useState(null); // null | 'success' | 'error'
-  const { mutateAsync, isPending } = useSubmitContact();
+  const [form,   setForm]   = useState(INITIAL_FORM);
+  const [status, setStatus] = useState(null); // null | 'sending' | 'success' | 'error' | 'partial'
+  const [errMsg, setErrMsg] = useState('');
+
+  const { mutateAsync: saveToSupabase } = useSubmitContact();
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus(null);
+    setStatus('sending');
+    setErrMsg('');
+
     try {
-      await mutateAsync(form);
+      // 1. Sauvegarde dans Supabase
+      await saveToSupabase(form);
+
+      // 2. Email notif propriétaire
+      await sendOwnerNotification(form, emailConfig || {});
+
+      // 3. Email confirmation visiteur
+      await sendConfirmation(form);
+
       setStatus('success');
       setForm(INITIAL_FORM);
-    } catch {
-      setStatus('error');
+    } catch (err) {
+      console.error('[Contact] Erreur envoi :', err);
+
+      // Si Supabase a réussi mais EmailJS échoue
+      if (err?.text || err?.status) {
+        setStatus('partial');
+        setErrMsg("Votre message a bien été enregistré, mais l'envoi de l'email a échoué. Contactez-moi directement.");
+      } else {
+        setStatus('error');
+        setErrMsg('Une erreur est survenue. Essayez par email directement.');
+      }
     }
   };
+
+  const isPending = status === 'sending';
 
   const infos = [
     { icon: MapPin, label: 'Localisation',  value: 'Saint-Denis, La Réunion' },
@@ -59,7 +85,7 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        {/* Correction de la grille pour mettre côte à côte */}
+        {/* Grille côte à côte */}
         <div className="grid lg:grid-cols-[350px_1fr] gap-10 lg:gap-16 max-w-5xl mx-auto">
 
           {/* ─ Infos ─ */}
@@ -103,6 +129,7 @@ const Contact = () => {
                   <input
                     type="text" name="name" value={form.name} onChange={handleChange}
                     required placeholder="Votre nom" className="input-field"
+                    disabled={isPending}
                   />
                 </div>
                 <div>
@@ -110,6 +137,7 @@ const Contact = () => {
                   <input
                     type="email" name="email" value={form.email} onChange={handleChange}
                     required placeholder="votre@email.com" className="input-field"
+                    disabled={isPending}
                   />
                 </div>
               </div>
@@ -119,6 +147,7 @@ const Contact = () => {
                 <input
                   type="text" name="subject" value={form.subject} onChange={handleChange}
                   placeholder="De quoi souhaitez-vous parler ?" className="input-field"
+                  disabled={isPending}
                 />
               </div>
 
@@ -128,30 +157,49 @@ const Contact = () => {
                   name="message" value={form.message} onChange={handleChange}
                   required rows={5} placeholder="Décrivez votre projet ou votre demande..."
                   className="input-field resize-none"
+                  disabled={isPending}
                 />
               </div>
 
-              {/* Status messages */}
+              {/* ── Status messages ── */}
               {status === 'success' && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(0,229,160,0.08)] border border-[rgba(0,229,160,0.2)] text-[#00E5A0] text-sm">
-                  <CheckCircle size={16} /> Message envoyé ! Je vous recontacte très vite.
-                </motion.div>
-              )}
-              {status === 'error' && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(255,80,50,0.08)] border border-[rgba(255,80,50,0.2)] text-red-400 text-sm">
-                  <AlertCircle size={16} /> Une erreur est survenue. Essayez par email directement.
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-2.5 p-4 rounded-xl bg-[rgba(0,229,160,0.08)] border border-[rgba(0,229,160,0.2)] text-[#00E5A0] text-sm">
+                  <CheckCircle size={16} className="flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-semibold mb-0.5">Message envoyé avec succès !</div>
+                    <div className="text-xs opacity-80">Un email de confirmation vous a été envoyé. Je vous recontacte sous 24h.</div>
+                  </div>
                 </motion.div>
               )}
 
-              <button type="submit" disabled={isPending} className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed">
+              {status === 'partial' && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-2.5 p-4 rounded-xl bg-[rgba(255,165,0,0.08)] border border-[rgba(255,165,0,0.2)] text-orange-400 text-sm">
+                  <CheckCircle size={16} className="flex-shrink-0 mt-0.5" />
+                  <div className="text-xs">{errMsg}</div>
+                </motion.div>
+              )}
+
+              {status === 'error' && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2.5 p-4 rounded-xl bg-[rgba(255,80,50,0.08)] border border-[rgba(255,80,50,0.2)] text-red-400 text-sm">
+                  <AlertCircle size={16} /> {errMsg}
+                </motion.div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isPending || status === 'success'}
+                className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 {isPending ? (
                   <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
+                    <Loader2 size={15} className="animate-spin" />
                     Envoi en cours…
                   </span>
+                ) : status === 'success' ? (
+                  <><CheckCircle size={15} /> Message envoyé !</>
                 ) : (
                   <><Send size={15} /> Envoyer le message</>
                 )}

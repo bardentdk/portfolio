@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, ExternalLink, GitBranch, Star, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, GitBranch, Star, Eye, EyeOff, FolderKanban  } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useProjects, useUpsertProject, useDeleteProject } from '../../hooks/useProjects';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
