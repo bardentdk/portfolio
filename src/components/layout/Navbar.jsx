@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Download } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import CustomLogo from '../ui/CustomLogo';
+import CvDownloadButton from '../cv/CvDownloadButton';
 
 const NAV_LINKS = [
   { label: 'Accueil',     id: 'hero' },
@@ -114,14 +115,7 @@ const Navbar = () => {
 
           {/* ─ CTA desktop ─ */}
           <div className="hidden md:flex items-center gap-2">
-            <a
-              href="/cv-djebarlen-tambon.pdf"
-              download
-              className="btn-outline"
-              style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem' }}
-            >
-              <Download size={13} /> CV
-            </a>
+            <CvDownloadButton variant="outline" label="CV" size="sm" />
             <button
               onClick={() => handleNav('contact')}
               className="btn-primary"

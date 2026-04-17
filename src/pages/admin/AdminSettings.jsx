@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, Globe, User, Share2, Search, Mail, Plus, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSettings, useUpdateSetting } from '../../hooks/useSettings';
+import { supabase } from '../../lib/supabase';
 import { useEmailConfig, useSaveEmailConfig } from '../../hooks/useEmailConfig';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
@@ -313,7 +314,9 @@ const HeroSettings = () => {
 const AboutSettings = () => {
   const { data } = useSettings('about');
   const update   = useUpdateSetting();
-  const [form, setForm] = useState({ bio: '', location: '', availability: true });
+  const [form,       setForm]       = useState({ bio: '', location: '', availability: true, photo_url: '' });
+  const [uploading,  setUploading]  = useState(false);
+  const [uploadErr,  setUploadErr]  = useState('');
 
   useEffect(() => { if (data?.value) setForm(data.value); }, [data]);
 
@@ -321,6 +324,49 @@ const AboutSettings = () => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm(p => ({ ...p, [f]: val }));
   };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const MAX_MB = 5;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setUploadErr(`Fichier trop lourd (max ${MAX_MB} Mo)`);
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setUploadErr('Seules les images sont acceptées.');
+      return;
+    }
+
+    setUploading(true);
+    setUploadErr('');
+
+    try {
+      const ext  = file.name.split('.').pop().toLowerCase();
+      const path = `photos/profile.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio-media')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('portfolio-media')
+        .getPublicUrl(path);
+
+      // Ajouter un cache-buster pour forcer le rechargement
+      const publicUrl = `${urlData.publicUrl}?v=${Date.now()}`;
+      setForm(p => ({ ...p, photo_url: publicUrl }));
+      toast.success('Photo uploadée !');
+    } catch (err) {
+      setUploadErr(`Erreur upload : ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const save = async () => {
     try { await update.mutateAsync({ key: 'about', value: form }); toast.success('À propos sauvegardé !'); }
     catch { toast.error('Erreur.'); }
@@ -333,6 +379,72 @@ const AboutSettings = () => {
       </Field>
       <Field label="Localisation">
         <input className="input-field" value={form.location} onChange={set('location')} placeholder="Saint-Denis, La Réunion" />
+      </Field>
+      <Field label="Photo de profil (utilisée dans le CV)">
+        {/* Upload Supabase Storage */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {/* Aperçu + bouton upload */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Aperçu */}
+            <div style={{ width: '4rem', height: '4rem', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid rgba(0,229,160,0.2)', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {form.photo_url
+                ? <img src={form.photo_url} alt="Photo profil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: '0.7rem', color: '#2E4A3A', fontWeight: 700 }}>DT</span>
+              }
+            </div>
+
+            {/* Bouton upload */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                padding: '0.5rem 1rem', borderRadius: '100px',
+                border: '1px solid rgba(0,229,160,0.2)', cursor: 'pointer',
+                fontSize: '0.8125rem', fontWeight: 500, color: '#EEF5F1',
+                background: uploading ? 'rgba(0,229,160,0.05)' : 'transparent',
+                transition: 'all 0.2s', opacity: uploading ? 0.7 : 1,
+              }}>
+                {uploading ? '⏳ Upload en cours…' : '📁 Choisir une photo'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              <span style={{ fontSize: '0.7rem', color: '#6B9980' }}>
+                JPG, PNG, WebP — max 5 Mo · Stocké sur Supabase Storage
+              </span>
+            </div>
+          </div>
+
+          {/* Erreur upload */}
+          {uploadErr && (
+            <div style={{ padding: '0.625rem 0.875rem', borderRadius: '0.625rem', background: 'rgba(255,80,50,0.08)', border: '1px solid rgba(255,80,50,0.2)', fontSize: '0.8125rem', color: '#ff7055' }}>
+              {uploadErr}
+            </div>
+          )}
+
+          {/* URL manuelle (fallback) */}
+          <div>
+            <div style={{ fontSize: '0.625rem', fontWeight: 600, color: '#2E4A3A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.375rem' }}>
+              Ou saisir une URL directe
+            </div>
+            <input
+              className="input-field"
+              type="url"
+              value={form.photo_url || ''}
+              onChange={set('photo_url')}
+              placeholder="https://..."
+              style={{ fontSize: '0.8125rem' }}
+            />
+          </div>
+
+          {/* Info Supabase bucket */}
+          <div style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'rgba(0,229,160,0.05)', border: '1px solid rgba(0,229,160,0.1)', fontSize: '0.75rem', color: '#6B9980', lineHeight: 1.6 }}>
+            <strong style={{ color: '#00E5A0' }}>📦 Setup requis (une seule fois) :</strong> dans Supabase → Storage → créer un bucket nommé <code style={{ background: 'rgba(0,229,160,0.1)', padding: '0 4px', borderRadius: 3 }}>portfolio-media</code> en mode <strong>Public</strong>.
+          </div>
+        </div>
       </Field>
       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
         <input type="checkbox" checked={form.availability} onChange={set('availability')} style={{ width: '1rem', height: '1rem', accentColor: '#00E5A0' }} />

@@ -20,6 +20,7 @@ const AdminExp       = lazy(() => import('./pages/admin/Experiences'));
 const AdminSkills    = lazy(() => import('./pages/admin/Skills'));
 const AdminContacts  = lazy(() => import('./pages/admin/Contacts'));
 const AdminSettings  = lazy(() => import('./pages/admin/AdminSettings'));
+const CvGenerator    = lazy(() => import('./pages/admin/CvGenerator'));
 
 /* ── Spinner de chargement ── */
 const PageLoader = () => (
@@ -69,7 +70,8 @@ const App = () => {
               <Route path="experiences"     element={<AdminExp />} />
               <Route path="skills"          element={<AdminSkills />} />
               <Route path="contacts"        element={<AdminContacts />} />
-              <Route path="settings"        element={<AdminSettings />} />
+              <Route path="settings"    element={<AdminSettings />} />
+              <Route path="cv"           element={<CvGenerator />} />
             </Route>
 
             {/* ── 404 ── */}

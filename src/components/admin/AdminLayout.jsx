@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, FolderKanban, Briefcase, Wrench,
+  FileText, LayoutDashboard, FolderKanban, Briefcase, Wrench,
   MessageSquare, Settings, LogOut, Menu, X, ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
