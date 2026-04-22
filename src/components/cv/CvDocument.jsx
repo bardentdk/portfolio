@@ -61,7 +61,8 @@ const s = StyleSheet.create({
   photoImg: {
     position: 'absolute', top: 0, left: 0,
     width: '100%', height: '100%',
-    objectFit: 'cover', objectPosition: 'top center',
+    // objectFit: 'cover', objectPosition: 'top center',
+    objectFit: 'cover', objectPosition: 'top'
   },
   avatar: {
     width: 48, height: 48, borderRadius: 12,
@@ -330,7 +331,7 @@ const CvDocument = ({ data }) => {
         {/* Sidebar */}
         <View style={s.sidebar}>
           {grayscale_photo
-            ? <PhotoBlock photo={grayscale_photo} />
+            ? <PhotoBlock photo={grayscale_photo} style="myPhoto"/>
             : <View style={s.avatar}><Text style={s.avatarTxt}>DT</Text></View>
           }
           <View>
